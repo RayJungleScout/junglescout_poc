@@ -11,7 +11,7 @@ redis.init_app(app)
 
 @app.route("/api/membership", methods=['POST'])
 def membership_buy():
-    params = request.json() or {}
+    params = request.json or {}
     phone = params.get("phone")
     if not phone:
         return error_response(400, "phone is required")
@@ -24,7 +24,7 @@ def membership_buy():
 
 @app.route("/api/membership", methods=['DELETE'])
 def membership_cancel():
-    params = request.json() or {}
+    params = request.json or {}
     phone = params.get("phone")
     if not phone:
         return error_response(400, "phone is required")
@@ -37,7 +37,7 @@ def membership_cancel():
 
 @app.route("/api/membership/check", methods=['GET'])
 def membership_check():
-    params = request.json() or {}
+    params = request.json or {}
     phone = params.get("phone")
     if phone:
         res = check_membership(phone=phone)
