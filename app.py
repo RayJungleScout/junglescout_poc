@@ -9,7 +9,7 @@ app.config.from_object(config)
 redis = FlaskRedis()
 redis.init_app(app)
 
-@app.route("api/membership", methods=['POST'])
+@app.route("/api/membership", methods=['POST'])
 def membership_buy():
     params = request.json() or {}
     phone = params.get("phone")
@@ -22,7 +22,7 @@ def membership_buy():
         return success_response()
     return error_response(500, "operation error")
 
-@app.route("api/membership", methods=['DELETE'])
+@app.route("/api/membership", methods=['DELETE'])
 def membership_cancel():
     params = request.json() or {}
     phone = params.get("phone")
@@ -35,7 +35,7 @@ def membership_cancel():
         return success_response()
     return error_response(500, "operation error")
 
-@app.route("api/membership/check", methods=['GET'])
+@app.route("/api/membership/check", methods=['GET'])
 def membership_check():
     params = request.json() or {}
     phone = params.get("phone")
