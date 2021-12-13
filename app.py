@@ -54,7 +54,7 @@ def set_membership(phone: str):
 def cancel_membership(phone: str):
     redis_key = get_membership_key()
     res = redis.srem(redis_key, phone)
-    pass
+    return res
 
 def check_membership(phone: str):
     redis_key = get_membership_key()
