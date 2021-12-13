@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 from flask_redis import FlaskRedis
 from config import Config
 
-app = Flask()
+app = Flask(__name__)
 config = Config()
 app.config.from_object(config)
 redis = FlaskRedis()
