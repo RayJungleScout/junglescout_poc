@@ -120,7 +120,7 @@ def delete_user(phone: str):
 def get_user_key():
     return "poc:user"
 
-def error_response(status_code, msg):
+def error_response(status_code, msg=""):
     res = jsonify({
         "msg": msg
     })
