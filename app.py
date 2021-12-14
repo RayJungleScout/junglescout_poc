@@ -72,6 +72,16 @@ def delete_user():
         return success_response()
     return error_response(500, "operation error")
 
+@app.route("/api/user", methods=['GET'])
+def user_check():
+    params = request.json or {}
+    phone = params.get("phone")
+    if not phone:
+        return error_response(401)
+    if check_user(phone):
+        return success_response()
+    return error_response(401)
+
 def set_membership(phone: str):
     redis_key = get_membership_key()
     res = redis.sadd(redis_key, phone)
