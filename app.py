@@ -1,9 +1,11 @@
 from os import stat
 from flask import Flask, json, request, jsonify
 from flask_redis import FlaskRedis
+from flask_cors import CORS
 from config import Config
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 config = Config()
 app.config.from_object(config)
 redis = FlaskRedis()
