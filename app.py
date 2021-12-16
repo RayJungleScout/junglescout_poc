@@ -13,7 +13,7 @@ redis.init_app(app)
 
 @app.route("/api/membership", methods=['POST'])
 def membership_buy():
-    params = request.args or {}
+    params = request.json or {}
     phone = params.get("email")
     if not phone:
         return error_response(400, "email is required")
