@@ -14,11 +14,11 @@ redis.init_app(app)
 @app.route("/api/membership", methods=['POST'])
 def membership_buy():
     params = request.args or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if not phone:
-        return error_response(400, "phone is required")
+        return error_response(400, "email is required")
     if check_membership(phone):
-        return error_response(403, "phone exists")
+        return error_response(403, "email exists")
     res = set_membership(phone)
     if res:
         return success_response()
@@ -27,11 +27,11 @@ def membership_buy():
 @app.route("/api/membership", methods=['DELETE'])
 def membership_cancel():
     params = request.args or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if not phone:
-        return error_response(400, "phone is required")
+        return error_response(400, "email is required")
     if not check_membership(phone):
-        return error_response(404, "phone not found")
+        return error_response(404, "email not found")
     res = cancel_membership(phone)
     if res:
         return success_response()
@@ -40,33 +40,33 @@ def membership_cancel():
 @app.route("/api/membership/check", methods=['GET'])
 def membership_check():
     params = request.args or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if phone:
         res = check_membership(phone=phone)
         if res:
             return success_response()
-        return error_response(403, "phone exists")
-    return error_response(400, "phone is required")
+        return error_response(403, "email exists")
+    return error_response(400, "email is required")
 
 @app.route("/api/user", methods=["POST"])
 def create_user():
     params = request.json or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if not phone:
-        return error_response(400, "phone is required")
+        return error_response(400, "email is required")
     if check_user(phone):
         return error_response(403, "user exists")
     res = add_user(phone)
     if res:
-        return success_response({"phone": phone})
+        return success_response({"email": phone})
     return error_response(500, "operation error")
 
 @app.route("/api/user", methods=['DELETE'])
 def delete_user():
     params = request.args or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if not phone:
-        return error_response(400, "phone is required")
+        return error_response(400, "email is required")
     if not check_user(phone):
         return error_response(404, "user not found")
     res = delete_user(phone)
@@ -77,7 +77,7 @@ def delete_user():
 @app.route("/api/user", methods=['GET'])
 def user_check():
     params = request.args or {}
-    phone = params.get("phone")
+    phone = params.get("email")
     if not phone:
         return error_response(401)
     if check_user(phone):
@@ -110,7 +110,7 @@ def check_user(phone: str):
 
 def add_user(phone: str):
     redis_key = get_user_key()
-    user_info = json.dumps({"phone": phone})
+    user_info = json.dumps({"email": phone})
     res = redis.hset(redis_key, phone, user_info)
     return res
 
