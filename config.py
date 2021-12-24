@@ -8,6 +8,7 @@ class Config():
 
     WECHAT_WORK_TOKEN = "test"
     WECHAT_WORK_AES_KEY = "test"
+    WECHAT_WORK_CORP_ID = "test"
 
     def __init__(self) -> None:
         dotenv.load_dotenv(dotenv_path=os.path.join(PROJECT_PATH, '.env'))

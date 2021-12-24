@@ -102,7 +102,10 @@ def wechat_work_feedback_test():
     wxcpt = WXBizMsgCrypt(token, aes_key, corp_id)
     ret,sEchoStr = wxcpt.VerifyURL(query_sign, query_ts, query_nonce, query_echo)
     if ret != 0:
-        return error_response(400)
+        return error_response(400, {
+            "ret": ret,
+            "echo_str": sEchoStr
+        })
     return success_response_raw(sEchoStr)
 
 @app.route("/api/ww/feedback", methods=["POST"])
