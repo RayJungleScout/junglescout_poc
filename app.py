@@ -1,8 +1,11 @@
 from os import stat
+import re
+import xmltodict
 from flask import Flask, json, request, jsonify
 from flask_redis import FlaskRedis
 from flask_cors import CORS
 from config import Config
+from external.wx import WXBizMsgCrypt
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -84,6 +87,42 @@ def user_check():
         return success_response()
     return error_response(401)
 
+@app.route("/api/ww/feedback", methods=['GET'])
+def wechat_work_feedback_test():
+    query_params = request.args
+    token = app.config.get("WECHAT_WORK_TOKEN")
+    aes_key = app.config.get("WECHAT_WORK_AES_KEY")
+    corp_id = app.config.get("WECHAT_WORK_CORP_ID")
+
+    query_sign = query_params.get("msg_signature")
+    query_ts = query_params.get("timestamp")
+    query_nonce = query_params.get("nonce")
+    query_echo = query_params.get("echostr")
+
+    wxcpt = WXBizMsgCrypt(token, aes_key, corp_id)
+    ret,sEchoStr = wxcpt.VerifyURL(query_sign, query_ts, query_nonce, query_echo)
+    if ret != 0:
+        return error_response(400)
+    return success_response_raw(sEchoStr)
+
+@app.route("/api/ww/feedback", methods=["POST"])
+def wechat_work_feedback():
+    query_params = request.args
+    token = app.config.get("WECHAT_WORK_TOKEN")
+    aes_key = app.config.get("WECHAT_WORK_AES_KEY")
+    corp_id = app.config.get("WECHAT_WORK_CORP_ID")
+    wxcpt = WXBizMsgCrypt(token, aes_key, corp_id)
+
+    query_sign = query_params.get("msg_signature")
+    query_ts = query_params.get("timestamp")
+    query_nonce = query_params.get("nonce")
+    body_data = request.data.decode('utf-8')
+    ret,sMsg = wxcpt.DecryptMsg(body_data, query_sign, query_ts, query_nonce)
+    if ret != 0:
+        return error_response(400)
+    app.logger.info("wechat work feedback msg is:%s"%(sMsg))
+    return success_response()
+
 def set_membership(phone: str):
     redis_key = get_membership_key()
     res = redis.sadd(redis_key, phone)
@@ -133,6 +172,9 @@ def success_response(data = {}):
     return jsonify({
         "data": data
     })
+
+def success_response_raw(message: str = ""):
+    return message
 
 if __name__ == "__main__":
     app.run()
