@@ -156,7 +156,7 @@ def wechat_work_feedback():
             "ret": ret,
             "msg": sMsg
         })
-    app.logger.info("wechat work feedback msg is:%s"%(sMsg))
+    app.logger.info("wechat work feedback msg is:%s"%(sMsg.decode("utf-8") ))
     return success_response()
 
 def set_membership(phone: str):
