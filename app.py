@@ -1,7 +1,7 @@
 from logging import handlers
 import os
 from os import stat
-import re, logging, xmltodict
+import logging, xmltodict
 from flask import Flask, json, request, jsonify
 from flask_redis import FlaskRedis
 from flask_cors import CORS
@@ -156,7 +156,9 @@ def wechat_work_feedback():
             "ret": ret,
             "msg": sMsg
         })
-    app.logger.info("wechat work feedback msg is:%s"%(sMsg.decode("utf-8") ))
+    xml_dict = xmltodict.parse(sMsg)
+    json_string = json.dumps(xml_dict)
+    app.logger.info("wechat work feedback msg is:%s"%(json_string))
     return success_response()
 
 def set_membership(phone: str):
