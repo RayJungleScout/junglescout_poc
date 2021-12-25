@@ -1,11 +1,13 @@
+from logging import handlers
+import os
 from os import stat
-import re
-import xmltodict
+import re, logging, xmltodict
 from flask import Flask, json, request, jsonify
 from flask_redis import FlaskRedis
 from flask_cors import CORS
 from config import Config
 from external.wx.WXBizMsgCrypt import WXBizMsgCrypt
+from logging.handlers import TimedRotatingFileHandler
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -13,6 +15,34 @@ config = Config()
 app.config.from_object(config)
 redis = FlaskRedis()
 redis.init_app(app)
+# logging.basicConfig(filename='poc.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+@app.before_first_request
+def before_first_request():
+    log_level = logging.INFO
+ 
+    for handler in app.logger.handlers:
+        app.logger.removeHandler(handler)
+ 
+    root = os.path.dirname(os.path.abspath(__file__))
+    logdir = os.path.join(root, 'logs')
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    log_file = os.path.join(logdir, 'app.log')
+    fmt = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
+    formatter = logging.Formatter(fmt=fmt, datefmt='%m/%d/%Y %H:%M:%S')
+
+    time_handler = TimedRotatingFileHandler(log_file, "D", 1, 7)
+    time_handler.setLevel(log_level)
+    time_handler.setFormatter(formatter)
+    app.logger.addHandler(time_handler)
+
+    # handler = logging.FileHandler(log_file)
+    # handler.setLevel(log_level)
+    # handler.setFormatter(formatter)
+    # app.logger.addHandler(handler)
+
+    app.logger.setLevel(log_level)
+    pass
 
 @app.route("/api/membership", methods=['POST'])
 def membership_buy():
@@ -122,7 +152,10 @@ def wechat_work_feedback():
     body_data = request.data.decode('utf-8')
     ret,sMsg = wxcpt.DecryptMsg(body_data, query_sign, query_ts, query_nonce)
     if ret != 0:
-        return error_response(400)
+        return error_response(400, {
+            "ret": ret,
+            "msg": sMsg
+        })
     app.logger.info("wechat work feedback msg is:%s"%(sMsg))
     return success_response()
 
