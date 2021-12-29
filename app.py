@@ -161,6 +161,13 @@ def wechat_work_feedback():
     app.logger.info("wechat work feedback msg is:%s"%(json_string))
     return success_response()
 
+@app.route("/api/ad/tencent/feedback", methods=["GET"])
+def tencent_ad_feedback():
+    params = request.args or {}
+    
+    app.logger.info("tencent ad feedback data is: %s" % json.dumps(params))
+    return success_response()
+
 def set_membership(phone: str):
     redis_key = get_membership_key()
     res = redis.sadd(redis_key, phone)
